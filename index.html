@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle Particle Clicker Game</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+        }
+        .shop {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
+        .shop button {
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .shop button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body onclick="increaseScoreByClick()">
+
+<div id="game-container">
+    <div class="info" id="score-display">Score: 0</div>
+    <div class="info" id="auto-score-display" style="top: 40px;">Passive Points/Sec: 0</div>
+    <div class="shop">
+        <button id="auto-generator" onclick="buyAutoGenerator()">Buy Auto-Generator (Cost: 100)</button>
+        <button id="click-upgrade" onclick="buyClickUpgrade()">Upgrade Click (Cost: 50)</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+    let score = 0;
+    let passivePointsPerSecond = 0;
+    let clickValue = 1;
+
+    const scoreDisplay = document.getElementById('score-display');
+    const autoScoreDisplay = document.getElementById('auto-score-display');
+    const autoGeneratorButton = document.getElementById('auto-generator');
+    const clickUpgradeButton = document.getElementById('click-upgrade');
+
+    const particleSettings = {
+        particles: {
+            number: { value: 50, density: { enable: true, value_area: 800 } },
+            color: { value: '#ffffff' },
+            shape: { type: 'circle' },
+            opacity: { value: 0.5, random: false },
+            size: { value: 3, random: true },
+            line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.4, width: 1 },
+            move: { enable: true, speed: 6, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+        },
+        interactivity: {
+            detect_on: 'canvas',
+            events: { onhover: { enable: false }, onclick: { enable: false }, resize: true }
+        },
+        retina_detect: true
+    };
+    particlesJS('game-container', particleSettings);
+
+    function increaseScoreByClick() {
+        score += clickValue;
+        updateUI();
+    }
+
+    function updateUI() {
+        scoreDisplay.innerText = `Score: ${score}`;
+        autoScoreDisplay.innerText = `Passive Points/Sec: ${passivePointsPerSecond}`;
+        autoGeneratorButton.disabled = score < 100;
+        clickUpgradeButton.disabled = score < 50;
+    }
+
+    function buyAutoGenerator() {
+        if (score >= 100) {
+            score -= 100;
+            passivePointsPerSecond += 1;
+            updateUI();
+            if (passivePointsPerSecond === 1) {
+                startAutoGeneration();
+            }
+        }
+    }
+
+    function buyClickUpgrade() {
+        if (score >= 50) {
+            score -= 50;
+            clickValue += 1;
+            updateUI();
+        }
+    }
+
+    function startAutoGeneration() {
+        setInterval(() => {
+            score += passivePointsPerSecond;
+            updateUI();
+        }, 100);
+    }
+
+    updateUI();
+</script>
+</body>
+</html>
