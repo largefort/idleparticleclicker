@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Idle Particle Clicker Game</title>
+    <title>ParticleClicker</title>
     <style>
         body, html {
             height: 100%;
@@ -65,6 +65,25 @@
     let passivePointsPerSecond = 0;
     let clickValue = 1;
 
+    function loadGame() {
+        const savedGame = localStorage.getItem('particleClickerGame');
+        if (savedGame) {
+            const gameData = JSON.parse(savedGame);
+            score = gameData.score;
+            passivePointsPerSecond = gameData.passivePointsPerSecond;
+            clickValue = gameData.clickValue;
+        }
+    }
+
+    function saveGame() {
+        const gameData = {
+            score,
+            passivePointsPerSecond,
+            clickValue,
+        };
+        localStorage.setItem('particleClickerGame', JSON.stringify(gameData));
+    }
+
     const scoreDisplay = document.getElementById('score-display');
     const autoScoreDisplay = document.getElementById('auto-score-display');
     const autoGeneratorButton = document.getElementById('auto-generator');
@@ -123,10 +142,12 @@
         setInterval(() => {
             score += passivePointsPerSecond;
             updateUI();
-        }, 100);
+        }, 1000);
     }
 
-    updateUI();
+    loadGame(); // Load the game state from local storage on start
+    updateUI(); // Update the UI with loaded values
+    setInterval(saveGame, 5000); // Save the game state to local storage every 5 seconds
 </script>
 </body>
 </html>
