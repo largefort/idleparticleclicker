@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IdleParticleClicker</title>
+    <title>ParticleClicker</title>
     <style>
         body, html {
             height: 100%;
@@ -46,18 +46,11 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        #particles-js {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
     </style>
 </head>
-<body>
+<body onclick="increaseScoreByClick()">
 
-<div id="game-container" onclick="increaseScoreByClick()">
-    <div id="particles-js"></div>
+<div id="game-container">
     <div class="info" id="score-display">Score: 0</div>
     <div class="info" id="auto-score-display" style="top: 40px;">Passive Points/Sec: 0</div>
     <div class="shop">
@@ -71,7 +64,6 @@
     let score = 0;
     let passivePointsPerSecond = 0;
     let clickValue = 1;
-    let autoGenerationInterval = null;
 
     function loadGame() {
         const savedGame = localStorage.getItem('particleClickerGame');
@@ -97,9 +89,9 @@
     const autoGeneratorButton = document.getElementById('auto-generator');
     const clickUpgradeButton = document.getElementById('click-upgrade');
 
-    particlesJS('particles-js', {
+    const particleSettings = {
         particles: {
-            number: { value: 80, density: { enable: true, value_area: 800 } },
+            number: { value: 50, density: { enable: true, value_area: 800 } },
             color: { value: '#ffffff' },
             shape: { type: 'circle' },
             opacity: { value: 0.5, random: false },
@@ -112,7 +104,8 @@
             events: { onhover: { enable: false }, onclick: { enable: false }, resize: true }
         },
         retina_detect: true
-    });
+    };
+    particlesJS('game-container', particleSettings);
 
     function increaseScoreByClick() {
         score += clickValue;
@@ -130,10 +123,10 @@
         if (score >= 100) {
             score -= 100;
             passivePointsPerSecond += 1;
+            updateUI();
             if (passivePointsPerSecond === 1) {
                 startAutoGeneration();
             }
-            updateUI();
         }
     }
 
@@ -146,25 +139,15 @@
     }
 
     function startAutoGeneration() {
-        if (autoGenerationInterval === null) {
-            autoGenerationInterval = setInterval(() => {
-                score += passivePointsPerSecond;
-                updateUI();
-            }, 100);
-        }
+        setInterval(() => {
+            score += passivePointsPerSecond;
+            updateUI();
+        }, 1000);
     }
 
-    // Load the game state from local storage when the page loads
-    loadGame();
-    updateUI();
-
-    // Start automatic generation if passivePointsPerSecond > 0
-    if (passivePointsPerSecond > 0) {
-        startAutoGeneration();
-    }
-
-    // Save the game state to local storage every 5 seconds
-    setInterval(saveGame, 5000);
+    loadGame(); // Load the game state from local storage on start
+    updateUI(); // Update the UI with loaded values
+    setInterval(saveGame, 5000); // Save the game state to local storage every 5 seconds
 </script>
 </body>
 </html>
