@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParticleClicker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body, html {
             height: 100%;
             margin: 0;
             background-color: #000;
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'Orbitron', sans-serif;
         }
         #game-container {
             height: 100vh;
@@ -19,6 +20,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 2;
+        }
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
         .info {
             position: absolute;
@@ -33,37 +41,130 @@
             text-align: center;
         }
         .shop button {
-            background-color: #444;
-            color: #fff;
-            border: 1px solid #ccc;
+            background-color: #005;
+            color: #0f0;
+            border: 2px solid #0f0;
             border-radius: 5px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             margin: 5px;
+            transition: transform 0.1s ease-in-out;
         }
         .shop button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
+        .shop button:hover {
+            transform: scale(1.1);
+        }
+        .click-value {
+            position: absolute;
+            color: #0f0;
+            font-size: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            transform: translateY(0);
+        }
     </style>
 </head>
-<body onclick="increaseScoreByClick()">
+<body>
 
-<div id="game-container">
+<div id="particles-js"></div>
+
+<div id="game-container" onclick="displayClickValue(event)">
     <div class="info" id="score-display">Score: 0</div>
     <div class="info" id="auto-score-display" style="top: 40px;">Passive Points/Sec: 0</div>
+    <div class="info" id="click-power-display" style="top: 70px;">Score Per Click: 1</div>
     <div class="shop">
-        <button id="auto-generator" onclick="buyAutoGenerator()">Buy Auto-Generator (Cost: 100)</button>
-        <button id="click-upgrade" onclick="buyClickUpgrade()">Upgrade Click (Cost: 50)</button>
+        <button id="auto-generator" onclick="buyAutoGenerator(event)">Buy Auto-Generator (Cost: 100)</button>
+        <button id="click-upgrade" onclick="buyClickUpgrade(event)">Upgrade Click (Cost: 50)</button>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="particles.min.js"></script>
+<script src="js/particles.js"></script>
+<script src="js/particles-mobile.json"></script>
 <script>
     let score = 0;
     let passivePointsPerSecond = 0;
     let clickValue = 1;
+
+    function formatNumber(num) {
+        if (num < 1000) return num.toString();
+        if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
+        if (num < 1000000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num < 1000000000000) return (num / 1000000000).toFixed(1) + 'B';
+        return (num / 1000000000000).toFixed(1) + 'T';
+    }
+
+    function displayClickValue(event) {
+        increaseScoreByClick();
+        const x = event.clientX;
+        const y = event.clientY;
+        const clickValueElement = document.createElement('div');
+        clickValueElement.classList.add('click-value');
+        clickValueElement.textContent = `+${clickValue}`;
+        document.body.appendChild(clickValueElement);
+        clickValueElement.style.left = `${x}px`;
+        clickValueElement.style.top = `${y}px`;
+        requestAnimationFrame(() => {
+            clickValueElement.style.opacity = 1;
+            clickValueElement.style.transform = 'translateY(-50px)';
+        });
+        setTimeout(() => {
+            clickValueElement.remove();
+        }, 800);
+    }
+
+    function increaseScoreByClick() {
+        score += clickValue;
+        updateUI();
+        saveGame();
+    }
+
+    function buyAutoGenerator(event) {
+        event.stopPropagation();
+        if (score >= 100) {
+            score -= 100;
+            passivePointsPerSecond += 1;
+            updateUI();
+            saveGame();
+        }
+    }
+
+    function buyClickUpgrade(event) {
+        event.stopPropagation();
+        if (score >= 50) {
+            score -= 50;
+            clickValue += 1;
+            updateUI();
+            saveGame();
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('score-display').innerText = `Score: ${formatNumber(score)}`;
+        document.getElementById('auto-score-display').innerText = `Passive Points/Sec: ${passivePointsPerSecond}`;
+        document.getElementById('click-power-display').innerText = `Score Per Click: ${clickValue}`;
+        document.getElementById('auto-generator').disabled = score < 100;
+        document.getElementById('click-upgrade').disabled = score < 50;
+    }
+
+    function startAutoGeneration() {
+        setInterval(() => {
+            score += passivePointsPerSecond;
+            updateUI();
+            saveGame();
+        }, 1000);
+    }
+
+    function saveGame() {
+        const gameData = { score, passivePointsPerSecond, clickValue };
+        localStorage.setItem('particleClickerGame', JSON.stringify(gameData));
+    }
 
     function loadGame() {
         const savedGame = localStorage.getItem('particleClickerGame');
@@ -72,82 +173,42 @@
             score = gameData.score;
             passivePointsPerSecond = gameData.passivePointsPerSecond;
             clickValue = gameData.clickValue;
+            updateUI();
         }
     }
 
-    function saveGame() {
-        const gameData = {
-            score,
-            passivePointsPerSecond,
-            clickValue,
-        };
-        localStorage.setItem('particleClickerGame', JSON.stringify(gameData));
-    }
-
-    const scoreDisplay = document.getElementById('score-display');
-    const autoScoreDisplay = document.getElementById('auto-score-display');
-    const autoGeneratorButton = document.getElementById('auto-generator');
-    const clickUpgradeButton = document.getElementById('click-upgrade');
-
-    const particleSettings = {
-        particles: {
-            number: { value: 50, density: { enable: true, value_area: 800 } },
-            color: { value: '#ffffff' },
-            shape: { type: 'circle' },
-            opacity: { value: 0.5, random: false },
-            size: { value: 3, random: true },
-            line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.4, width: 1 },
-            move: { enable: true, speed: 6, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
-        },
-        interactivity: {
-            detect_on: 'canvas',
-            events: { onhover: { enable: false }, onclick: { enable: false }, resize: true }
-        },
-        retina_detect: true
-    };
-    particlesJS('game-container', particleSettings);
-
-    function increaseScoreByClick() {
-        score += clickValue;
+    document.addEventListener('DOMContentLoaded', function() {
+        loadGame();
         updateUI();
-    }
-
-    function updateUI() {
-        scoreDisplay.innerText = `Score: ${score}`;
-        autoScoreDisplay.innerText = `Passive Points/Sec: ${passivePointsPerSecond}`;
-        autoGeneratorButton.disabled = score < 100;
-        clickUpgradeButton.disabled = score < 50;
-    }
-
-    function buyAutoGenerator() {
-        if (score >= 100) {
-            score -= 100;
-            passivePointsPerSecond += 1;
-            updateUI();
-            if (passivePointsPerSecond === 1) {
-                startAutoGeneration();
-            }
-        }
-    }
-
-    function buyClickUpgrade() {
-        if (score >= 50) {
-            score -= 50;
-            clickValue += 1;
-            updateUI();
-        }
-    }
-
-    function startAutoGeneration() {
-        setInterval(() => {
-            score += passivePointsPerSecond;
-            updateUI();
-        }, 1000);
-    }
-
-    loadGame(); // Load the game state from local storage on start
-    updateUI(); // Update the UI with loaded values
-    setInterval(saveGame, 5000); // Save the game state to local storage every 5 seconds
+        startAutoGeneration();
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#ffffff" },
+                shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
+                opacity: { value: 0.5, anim: { enable: false } },
+                size: { value: 3, random: true, anim: { enable: false } },
+                line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.4, width: 1 },
+                move: { enable: true, speed: 6, direction: "none", random: false, straight: false, out_mode: "out", bounce: false, attract: { enable: false, rotateX: 600, rotateY: 1200 } },
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                },
+                modes: {
+                    grab: { distance: 400, line_linked: { opacity: 1 } },
+                    bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
+                    repulse: { distance: 200, duration: 0.4 },
+                    push: { particles_nb: 4 },
+                    remove: { particles_nb: 2 }
+                }
+            },
+            retina_detect: true
+        });
+    });
 </script>
 </body>
 </html>
