@@ -12,6 +12,10 @@
             background-color: #000;
             color: white;
             font-family: 'Orbitron', sans-serif;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         #game-container {
             height: 100vh;
@@ -33,12 +37,6 @@
             top: 10px;
             left: 10px;
             font-size: 18px;
-        }
-        .shop {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
-            text-align: center;
         }
         .shop button {
             background-color: #005;
@@ -67,13 +65,6 @@
             transition: opacity 0.8s ease, transform 0.8s ease;
             transform: translateY(0);
         }
-        /* Disable text selection */
-body, html {
-    -webkit-user-select: none; /* Safari */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* IE10+/Edge */
-    user-select: none; /* Standard */
-}
     </style>
 </head>
 <body>
@@ -90,14 +81,25 @@ body, html {
     </div>
 </div>
 
+<audio id="bg-music" loop autoplay>
+    <source src="background-music.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<div id="music-controls">
+    <button onclick="toggleMusic()">Toggle Music</button>
+</div>
+
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script src="particles.min.js"></script>
-<script src="js/particles.js"></script>
-<script src="js/particles-mobile.json"></script>
 <script>
     let score = 0;
     let passivePointsPerSecond = 0;
     let clickValue = 1;
+    let autoGeneratorCost = 100;
+    let clickUpgradeCost = 50;
+
+    const autoGeneratorCostFactor = 1.2;
+    const clickUpgradeCostFactor = 1.15;
 
     function formatNumber(num) {
         if (num < 1000) return num.toString();
@@ -134,9 +136,10 @@ body, html {
 
     function buyAutoGenerator(event) {
         event.stopPropagation();
-        if (score >= 100) {
-            score -= 100;
+        if (score >= autoGeneratorCost) {
+            score -= autoGeneratorCost;
             passivePointsPerSecond += 1;
+            autoGeneratorCost = Math.floor(autoGeneratorCost * autoGeneratorCostFactor);
             updateUI();
             saveGame();
         }
@@ -144,9 +147,10 @@ body, html {
 
     function buyClickUpgrade(event) {
         event.stopPropagation();
-        if (score >= 50) {
-            score -= 50;
+        if (score >= clickUpgradeCost) {
+            score -= clickUpgradeCost;
             clickValue += 1;
+            clickUpgradeCost = Math.floor(clickUpgradeCost * clickUpgradeCostFactor);
             updateUI();
             saveGame();
         }
@@ -156,8 +160,19 @@ body, html {
         document.getElementById('score-display').innerText = `Score: ${formatNumber(score)}`;
         document.getElementById('auto-score-display').innerText = `Passive Points/Sec: ${passivePointsPerSecond}`;
         document.getElementById('click-power-display').innerText = `Score Per Click: ${clickValue}`;
-        document.getElementById('auto-generator').disabled = score < 100;
-        document.getElementById('click-upgrade').disabled = score < 50;
+        document.getElementById('auto-generator').innerText = `Buy Auto-Generator (Cost: ${formatNumber(autoGeneratorCost)})`;
+        document.getElementById('click-upgrade').innerText = `Upgrade Click (Cost: ${formatNumber(clickUpgradeCost)})`;
+        document.getElementById('auto-generator').disabled = score < autoGeneratorCost;
+        document.getElementById('click-upgrade').disabled = score < clickUpgradeCost;
+    }
+
+    function toggleMusic() {
+        var music = document.getElementById("bg-music");
+        if (music.paused) {
+            music.play();
+        } else {
+            music.pause();
+        }
     }
 
     function startAutoGeneration() {
@@ -169,7 +184,7 @@ body, html {
     }
 
     function saveGame() {
-        const gameData = { score, passivePointsPerSecond, clickValue };
+        const gameData = { score, passivePointsPerSecond, clickValue, autoGeneratorCost, clickUpgradeCost };
         localStorage.setItem('particleClickerGame', JSON.stringify(gameData));
     }
 
@@ -180,6 +195,8 @@ body, html {
             score = gameData.score;
             passivePointsPerSecond = gameData.passivePointsPerSecond;
             clickValue = gameData.clickValue;
+            autoGeneratorCost = gameData.autoGeneratorCost;
+            clickUpgradeCost = gameData.clickUpgradeCost;
             updateUI();
         }
     }
