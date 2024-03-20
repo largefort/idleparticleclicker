@@ -82,13 +82,7 @@ function confirmPrestige() {
 }
 
 function saveGame() {
-    const gameData = {
-        score,
-        passivePointsPerSecond,
-        clickValue,
-        energy,
-        prestigeMultiplier
-    };
+    const gameData = { score, passivePointsPerSecond, clickValue, energy };
     localStorage.setItem('particleClickerGame', JSON.stringify(gameData));
 }
 
@@ -99,8 +93,7 @@ function loadGame() {
         score = gameData.score;
         passivePointsPerSecond = gameData.passivePointsPerSecond;
         clickValue = gameData.clickValue;
-        energy = gameData.energy;
-        prestigeMultiplier = gameData.prestigeMultiplier;
+        energy = gameData.energy || 0; // Load energy, defaulting to 0 if undefined
         updateUI();
     }
 }
