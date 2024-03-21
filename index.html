@@ -166,10 +166,97 @@ body, html {
     <script src="particles.min.js"></script>
     <script src="js/particles.js"></script>
     <script src="js/particles-mobile.json"></script>
-    <script src="prestige.js"></script>
-</body>
-<script>
-   document.addEventListener('DOMContentLoaded', function() {
+    <script>
+        let score = 0;
+        let passivePointsPerSecond = 0;
+        let clickValue = 1;
+
+        function formatNumber(num) {
+            if (num < 1000) return num.toString();
+            if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
+            if (num < 1000000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num < 1000000000000) return (num / 1000000000).toFixed(1) + 'B';
+            return (num / 1000000000000).toFixed(1) + 'T';
+        }
+
+        function displayClickValue(event) {
+            increaseScoreByClick();
+            const x = event.clientX;
+            const y = event.clientY;
+            const clickValueElement = document.createElement('div');
+            clickValueElement.classList.add('click-value');
+            clickValueElement.textContent = `+${clickValue}`;
+            document.body.appendChild(clickValueElement);
+            clickValueElement.style.left = `${x}px`;
+            clickValueElement.style.top = `${y}px`;
+            requestAnimationFrame(() => {
+                clickValueElement.style.opacity = 1;
+                clickValueElement.style.transform = 'translateY(-50px)';
+            });
+            setTimeout(() => {
+                clickValueElement.remove();
+            }, 800);
+        }
+
+        function increaseScoreByClick() {
+            score += clickValue;
+            updateUI();
+            saveGame();
+        }
+
+        function buyAutoGenerator(event) {
+            event.stopPropagation();
+            if (score >= 100) {
+                score -= 100;
+                passivePointsPerSecond += 1;
+                updateUI();
+                saveGame();
+            }
+        }
+
+        function buyClickUpgrade(event) {
+            event.stopPropagation();
+            if (score >= 50) {
+                score -= 50;
+                clickValue += 1;
+                updateUI();
+                saveGame();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('score-display').innerText = `Score: ${formatNumber(score)}`;
+            document.getElementById('auto-score-display').innerText = `Passive Points/Sec: ${passivePointsPerSecond}`;
+            document.getElementById('click-power-display').innerText = `Score Per Click: ${clickValue}`;
+            document.getElementById('auto-generator').disabled = score < 100;
+            document.getElementById('click-upgrade').disabled = score < 50;
+        }
+
+        function startAutoGeneration() {
+            setInterval(() => {
+                score += passivePointsPerSecond;
+                updateUI();
+                saveGame();
+            }, 1000);
+        }
+
+        function saveGame() {
+            const gameData = { score, passivePointsPerSecond, clickValue };
+            localStorage.setItem('particleClickerGame', JSON.stringify(gameData));
+        }
+
+        function loadGame() {
+            const savedGame = localStorage.getItem('particleClickerGame');
+            if (savedGame) {
+                const gameData = JSON.parse(savedGame);
+                score = gameData.score;
+                passivePointsPerSecond = gameData.passivePointsPerSecond;
+                clickValue = gameData.clickValue;
+                updateUI();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
             loadGame();
             updateUI();
             startAutoGeneration();
@@ -201,5 +288,17 @@ body, html {
                 retina_detect: true
             });
         });
-<script>
+    </script>
+    <!-- Advertisement Scripts -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5816082932921993" crossorigin="anonymous"></script>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-5816082932921993"
+         data-ad-slot="2337377316"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</body>
 </html>
