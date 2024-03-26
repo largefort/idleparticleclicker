@@ -94,6 +94,12 @@
     <input type="text" class="chat-input" placeholder="Type your message..." id="chat-input">
 </div>
 
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="particles.min.js"></script>
+<script src="js/particles.js"></script>
+<script src="js/particles-mobile.json"></script>
+<script src="js/index.js"></script>
+<script src="cordova.js"></script>
 <script>
     // Photon initialization
     const appId = 'd04de501-6410-43e3-9f8d-2e68dbdcd2a3'; // Replace with your actual Photon App ID
