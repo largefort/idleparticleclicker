@@ -141,7 +141,40 @@ body, html {
     color: #00ff00;
     text-shadow: 0 0 10px #00ff00;
 }
-    </style>
+        /* Chat window styles */
+        .chat-window {
+            position: fixed;
+            bottom: 20px; /* Adjust as needed */
+            right: 20px; /* Adjust as needed */
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+            max-width: 300px; /* Adjust as needed */
+            z-index: 1000; /* Ensure it's above other elements */
+        }
+
+        .chat-input {
+            width: calc(100% - 20px); /* Adjust as needed */
+            margin-top: 10px;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+
+        .chat-messages {
+            margin-top: 10px;
+            max-height: 200px; /* Adjust as needed */
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            margin-bottom: 5px;
+        }
+ </style>
 </head>
 <body>
 <audio autoplay loop>
