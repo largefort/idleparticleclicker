@@ -3,68 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParticleClicker</title>
+    <title>ParticleClicker - Sci-Fi Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <!-- Include Photon SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/photon-sdk.min.js"></script>
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            background-color: #000;
-            color: white;
-            font-family: 'Orbitron', sans-serif;
-            overflow: hidden; /* Prevent scrolling */
-        }
-        #game-container {
-            height: calc(100% - 50px); /* Adjust as needed */
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-        }
-        #particles-js {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        /* Chat window styles */
-        .chat-window {
-            position: fixed;
-            bottom: 20px; /* Adjust as needed */
-            right: 20px; /* Adjust as needed */
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            border-radius: 10px;
-            padding: 10px;
-            max-width: 300px; /* Adjust as needed */
-            z-index: 1000; /* Ensure it's above other elements */
-        }
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="mobile-styles.css"> <!-- Mobile-specific styles -->
 
-        .chat-input {
-            width: calc(100% - 20px); /* Adjust as needed */
-            margin-top: 10px;
-            padding: 5px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            outline: none;
-        }
-
-        .chat-messages {
-            margin-top: 10px;
-            max-height: 200px; /* Adjust as needed */
-            overflow-y: auto;
-        }
-
-        .chat-message {
-            margin-bottom: 5px;
-        }
-    </style>
+    <!-- Set CORS policy -->
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
 </head>
 <body>
 <audio autoplay loop>
@@ -74,185 +19,126 @@
 <!-- Version and copyright credit -->
 <div class="version-info">
     <div>1.0.0</div>
-    <div>10005</div>
+    <div>10008</div>
 </div>
 
 <div id="particles-js"></div>
 <div id="game-container" onclick="displayClickValue(event)">
-    <div class="info" id="score-display">Score: 0</div>
-    <div class="info" id="auto-score-display" style="top: 40px;">Passive Points/Sec: 0</div>
-    <div class="info" id="click-power-display" style="top: 70px;">Score Per Click: 1</div>
+    <div id="vignette-overlay"></div> <!-- Vignette overlay -->
+    <div class="info" id="score-display">Score: <span id="score">0</span></div>
+    <div class="info" id="auto-score-display">Passive Points/Sec: <span id="auto-score">0</span></div>
+    <div class="info" id="click-power-display">Score Per Click: <span id="click-power">1</span></div>
+    <div class="info" id="particles-counter">Particles: <span id="particles-count">0</span></div> <!-- Particles Counter -->
     <div class="shop">
         <button id="auto-generator" onclick="buyAutoGenerator(event)">Buy Auto-Generator (Cost: 100)</button>
         <button id="click-upgrade" onclick="buyClickUpgrade(event)">Upgrade Click (Cost: 50)</button>
+        <button onclick="openResearchTree()">Research Tree</button>
+        <button onclick="openStoreModal()">Store</button> <!-- Store button -->
     </div>
 </div>
 
-<!-- Chat window -->
-<div class="chat-window" id="chat-window">
-    <div class="chat-messages" id="chat-messages"></div>
-    <input type="text" class="chat-input" placeholder="Type your message..." id="chat-input">
+<!-- Store Modal -->
+<div id="store-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeStoreModal()">&times;</span>
+        <h2>Store</h2>
+        <p>Choose your purchase:</p>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_1')">Particles Bundle 1 (Price: $1.99)</button>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_2')">Particles Bundle 2 (Price: $2.99)</button>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_3')">Particles Bundle 3 (Price: $4.99)</button>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_4')">Particles Bundle 4 (Price: $9.99)</button>
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script src="particles.min.js"></script>
-<script src="js/particles.js"></script>
-<script src="js/particles-mobile.json"></script>
-<script src="js/index.js"></script>
-<script src="cordova.js"></script>
+<!-- Research Tree Modal -->
+<div id="research-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeResearchTree()">&times;</span>
+        <h2>Research Tree</h2>
+        <p>Click on the nodes to unlock various upgrades:</p>
+        <ul>
+            <li>
+                Improved Particle Detection
+                <button class="modal-button" onclick="startResearch('improvedParticleDetection', 500)">Research (Cost: 500)</button>
+                <p>Enhance your particle detection algorithms, increasing passive score generation rate by 2 points per second.</p>
+            </li>
+            <li>
+                Enhanced Particle Acceleration
+                <button class="modal-button" onclick="startResearch('enhancedParticleAcceleration', 1000)">Research (Cost: 1000)</button>
+                <p>Upgrade particle acceleration techniques, doubling your score per click value.</p>
+            </li>
+            <li>
+                Advanced Quantum Computing
+                <button class="modal-button" onclick="startResearch('advancedQuantumComputing', 1500)">Research (Cost: 1500)</button>
+                <p>Unlock advanced quantum computing methods, doubling your total score.</p>
+            </li>
+            <li>
+                Nano-Scale Engineering
+                <button class="modal-button" onclick="startResearch('nanoScaleEngineering', 2000)">Research (Cost: 2000)</button>
+                <p>Utilize nano-scale engineering, increasing passive score generation rate by 5 points per second and click value by 5.</p>
+            </li>
+            <li>
+                Optimized Energy Transfer
+                <button class="modal-button" onclick="startResearch('optimizedEnergyTransfer', 2500)">Research (Cost: 2500)</button>
+                <p>Optimize energy transfer mechanisms, increasing passive score generation rate by 10 points per second and click value by 10.</p>
+            </li>
+            <li>
+                Multi-Dimensional Analysis
+                <button class="modal-button" onclick="startResearch('multiDimensionalAnalysis', 3000)">Research (Cost: 3000)</button>
+                <p>Conduct multi-dimensional analysis, increasing passive score generation rate by 20 points per second and click value by 20.</p>
+            </li>
+            <li>
+                Temporal Manipulation
+                <button class="modal-button" onclick="startResearch('temporalManipulation', 3500)">Research (Cost: 3500)</button>
+                <p>Master temporal manipulation techniques, increasing passive score generation rate by 50 points per second and click value by 50.</p>
+            </li>
+            <li>
+                Transcendental Synthesis
+                <button class="modal-button" onclick="startResearch('transcendentalSynthesis', 4000)">Research (Cost: 4000)</button>
+                <p>Achieve transcendental synthesis, increasing passive score generation rate by 100 points per second and click value by 100.</p>
+            </li>
+            <li>
+                Galactic Expansion
+                <button class="modal-button" onclick="startResearch('galacticExpansion', 4500)">Research (Cost: 4500)</button>
+                <p>Expand your galactic presence, increasing passive score generation rate by 200 points per second and click value by 200.</p>
+            </li>
+            <li>
+                Hyperspace Navigation
+                <button class="modal-button" onclick="startResearch('hyperspaceNavigation', 5000)">Research (Cost: 5000)</button>
+                <p>Master hyperspace navigation, increasing passive score generation rate by 500 points per second and click value by 500.</p>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 <script>
-    // Photon initialization
-    const appId = 'd04de501-6410-43e3-9f8d-2e68dbdcd2a3'; // Replace with your actual Photon App ID
-    const client = new Photon.LoadBalancing.LoadBalancingClient(Photon.ConnectionProtocol.Ws, appId);
-
-    // Event listeners for connection
-    client.add_OnStateChange(onStateChange);
-    client.add_OnError(onError);
-
-    // Connect to Photon servers
-    client.connectToRegionMaster('eu');
-
-    // Event handler for connection state changes
-    function onStateChange(state) {
-        console.log('Connection state:', state);
-        if (state === Photon.LoadBalancing.ConnectionState.ConnectedToMaster) {
-            // Connected to Photon servers, join or create rooms here
-        }
-    }
-
-    // Event handler for errors
-    function onError(errorCode, errorMsg) {
-        console.error('Error:', errorCode, errorMsg);
-    }
-
-    let score = 0;
-    let passivePointsPerSecond = 0;
-    let clickValue = 1;
-
-    function formatNumber(num) {
-        if (num < 1000) return num.toString();
-        if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
-        if (num < 1000000000) return (num / 1000000).toFixed(1) + 'M';
-        if (num < 1000000000000) return (num / 1000000000).toFixed(1) + 'B';
-        return (num / 1000000000000).toFixed(1) + 'T';
-    }
-
-    function displayClickValue(event) {
-        increaseScoreByClick();
-        const x = event.clientX;
-        const y = event.clientY;
-        const clickValueElement = document.createElement('div');
-        clickValueElement.classList.add('click-value');
-        clickValueElement.textContent = `+${clickValue}`;
-        document.body.appendChild(clickValueElement);
-        clickValueElement.style.left = `${x}px`;
-        clickValueElement.style.top = `${y}px`;
-        requestAnimationFrame(() => {
-            clickValueElement.style.opacity = 1;
-            clickValueElement.style.transform = 'translateY(-50px)';
-        });
-        setTimeout(() => {
-            clickValueElement.remove();
-        }, 800);
-    }
-
-    function increaseScoreByClick() {
-        score += clickValue;
-        updateUI();
-        saveGame();
-    }
-
-    function buyAutoGenerator(event) {
-        event.stopPropagation();
-        if (score >= 100) {
-            score -= 100;
-            passivePointsPerSecond += 1;
-            updateUI();
-            saveGame();
-        }
-    }
-
-    function buyClickUpgrade(event) {
-        event.stopPropagation();
-        if (score >= 50) {
-            score -= 50;
-            clickValue += 1;
-            updateUI();
-            saveGame();
-        }
-    }
-
-    function updateUI() {
-        document.getElementById('score-display').innerText = `Score: ${formatNumber(score)}`;
-        document.getElementById('auto-score-display').innerText = `Passive Points/Sec: ${passivePointsPerSecond}`;
-        document.getElementById('click-power-display').innerText = `Score Per Click: ${clickValue}`;
-        document.getElementById('auto-generator').disabled = score < 100;
-        document.getElementById('click-upgrade').disabled = score < 50;
-    }
-
-    function startAutoGeneration() {
-        setInterval(() => {
-            score += passivePointsPerSecond;
-            updateUI();
-            saveGame();
-        }, 1000);
-    }
-
-    function saveGame() {
-        const gameData = { score, passivePointsPerSecond, clickValue };
-        localStorage.setItem('particleClickerGame', JSON.stringify(gameData));
-    }
-
-    function loadGame() {
-        const savedGame = localStorage.getItem('particleClickerGame');
-        if (savedGame) {
-            const gameData = JSON.parse(savedGame);
-            score = gameData.score;
-            passivePointsPerSecond = gameData.passivePointsPerSecond;
-            clickValue = gameData.clickValue;
-            updateUI();
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        loadGame();
-        updateUI();
-        startAutoGeneration();
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: "#ffffff" },
-                shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
-                opacity: { value: 0.5, anim: { enable: false } },
-                size: { value: 3, random: true, anim: { enable: false } },
-                line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.4, width: 1 },
-                move: { enable: true, speed: 6, direction: "none", random: false, straight: false, out_mode: "out", bounce: false, attract: { enable: false, rotateX: 600, rotateY: 1200 } },
-            },
-            interactivity: {
-                detect_on: "canvas",
-                events: {
-                    onhover: { enable: true, mode: "repulse" },
-                    onclick: { enable: true, mode: "push" },
-                    resize: true
-                },
-                modes: {
-                    grab: { distance: 400, line_linked: { opacity: 1 } },
-                    bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
-                    repulse: { distance: 200, duration: 0.4 },
-                    push: { particles_nb: 4 },
-                    remove: { particles_nb: 2 }
-                }
-            },
-            retina_detect: true
-        });
-    });
+    // CrazyGames SDK initialization
 </script>
-  
+
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script src="particles.min.js"></script>
-<script src="js/particles.js"></script>
+<script src="particles.js"></script>
 <script src="js/particles-mobile.json"></script>
 <script src="js/index.js"></script>
-<script src="cordova.js"></script>
+<script src="script.js"></script>
+<script>
+    // JavaScript functions for handling store modal
+    function openStoreModal() {
+        var modal = document.getElementById('store-modal');
+        modal.style.display = 'block';
+    }
+
+    function closeStoreModal() {
+        var modal = document.getElementById('store-modal');
+        modal.style.display = 'none';
+    }
+
+    // JavaScript function to display particles count
+    function updateParticlesCount(count) {
+        document.getElementById('particles-count').innerText = count;
+    }
+</script>
 </body>
 </html>
+
