@@ -25,27 +25,30 @@
 <div id="particles-js"></div>
 <div id="game-container" onclick="displayClickValue(event)">
     <div id="vignette-overlay"></div> <!-- Vignette overlay -->
-    <div class="info" id="score-display">Score: 0</div>
-    <div class="info" id="auto-score-display">Passive Points/Sec: 0</div>
-    <div class="info" id="click-power-display">Score Per Click: 1</div>
+    <div class="info" id="score-display">Score: <span id="score">0</span></div>
+    <div class="info" id="auto-score-display">Passive Points/Sec: <span id="auto-score">0</span></div>
+    <div class="info" id="click-power-display">Score Per Click: <span id="click-power">1</span></div>
+    <div class="info" id="particles-counter">Particles: <span id="particles-count">0</span></div> <!-- Particles Counter -->
     <div class="shop">
         <button id="auto-generator" onclick="buyAutoGenerator(event)">Buy Auto-Generator (Cost: 100)</button>
         <button id="click-upgrade" onclick="buyClickUpgrade(event)">Upgrade Click (Cost: 50)</button>
         <button onclick="openResearchTree()">Research Tree</button>
+        <button onclick="openStoreModal()">Store</button> <!-- Store button -->
     </div>
 </div>
 
-<!-- AdSense Code -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-5816082932921993" <!-- Replace XXXXXXXXXXXXXXXX with your AdSense Publisher ID -->
-     data-ad-slot="4216354283" <!-- Replace XXXXXXXXXX with your Ad Slot ID -->
-     data-ad-format="auto"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-<!-- End of AdSense Code -->
+<!-- Store Modal -->
+<div id="store-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeStoreModal()">&times;</span>
+        <h2>Store</h2>
+        <p>Choose your purchase:</p>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_1')">Particles Bundle 1 (Price: $1.99)</button>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_2')">Particles Bundle 2 (Price: $2.99)</button>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_3')">Particles Bundle 3 (Price: $4.99)</button>
+        <button class="modal-button" onclick="purchaseProduct('particles_bundle_4')">Particles Bundle 4 (Price: $9.99)</button>
+    </div>
+</div>
 
 <!-- Research Tree Modal -->
 <div id="research-modal" class="modal">
@@ -120,7 +123,21 @@
 <script src="js/index.js"></script>
 <script src="script.js"></script>
 <script>
-    // Your JavaScript code here
+    // JavaScript functions for handling store modal
+    function openStoreModal() {
+        var modal = document.getElementById('store-modal');
+        modal.style.display = 'block';
+    }
+
+    function closeStoreModal() {
+        var modal = document.getElementById('store-modal');
+        modal.style.display = 'none';
+    }
+
+    // JavaScript function to display particles count
+    function updateParticlesCount(count) {
+        document.getElementById('particles-count').innerText = count;
+    }
 </script>
 </body>
 </html>
