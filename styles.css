@@ -45,6 +45,7 @@ body, html {
 .info:nth-child(2) { top: 40px; }
 .info:nth-child(3) { top: 70px; }
 .info:nth-child(4) { top: 100px; } /* New style for Score Per Click */
+.info:nth-child(5) { top: 130px; } /* New style for Score Per Click */
 
 .shop {
     position: absolute;
