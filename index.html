@@ -164,9 +164,19 @@
         modal.style.display = 'none';
     }
 
-    // Include the OpenAI GPT API library, assuming it's loaded separately
-    // Make sure to replace 'YOUR_API_KEY' with your actual OpenAI API key
-    const openai = require('openai')('sk-proj-cM4Vm8ymdAwGuFJSOWa0T3BlbkFJsMiObwmWjV5zJwD9M8NR');
+    // Define patch notes
+    const patchNotes = [
+        {
+            version: "1.0.1",
+            date: "2024-04-19",
+            changes: [
+                "Fixed a bug where auto-generator was not incrementing score properly.",
+                "Adjusted click upgrade pricing for better balance.",
+                "Improved performance for smoother gameplay experience."
+            ]
+        },
+        // Add more patch notes as needed
+    ];
 
     // Function to generate patch note descriptions using GPT
     async function generatePatchNoteDescription(changes) {
@@ -185,45 +195,39 @@
         }
     }
 
-    // Define patch notes
-    const patchNotes = [
-        {
-            version: "1.0.1",
-            date: "2024-04-19",
-            changes: [
-                "Fixed a bug where auto-generator was not incrementing score properly.",
-                "Adjusted click upgrade pricing for better balance.",
-                "Improved performance for smoother gameplay experience."
-            ]
-        },
-        // Add more patch notes as needed
-    ];
-
-    // Function to update patch notes in index.html with descriptions
-    async function updatePatchNotes() {
-        const patchNotesList = document.getElementById("patch-notes-list");
-        patchNotesList.innerHTML = ""; // Clear existing patch notes
-
-        for (const note of patchNotes) {
-            const noteItem = document.createElement("li");
-            noteItem.innerHTML = `<strong>Version ${note.version} (${note.date})</strong><ul>${note.changes.map(change => `<li>${change}</li>`).join('')}</ul>`;
-
-            // Generate description using GPT
-            const description = await generatePatchNoteDescription(note.changes);
-            const descriptionItem = document.createElement("p");
-            descriptionItem.innerHTML = `<strong>Description:</strong> ${description}`;
-
-            patchNotesList.appendChild(noteItem);
-            patchNotesList.appendChild(descriptionItem);
-        }
-    }
-
     // Automatically describe new changes in index.html
     window.onload = function() {
-        // Update patch notes list
-        updatePatchNotes();
+        // Load OpenAI GPT script asynchronously
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@openai/api@0.6.0/dist/openai-browser.js';
+        script.onload = function() {
+            // Initialize OpenAI API
+            const openai = new OpenAI('sk-proj-cM4Vm8ymdAwGuFJSOWa0T3BlbkFJsMiObwmWjV5zJwD9M8NR');
+
+            // Update patch notes list
+            updatePatchNotes();
+
+            // Function to update patch notes in index.html with descriptions
+            async function updatePatchNotes() {
+                const patchNotesList = document.getElementById("patch-notes-list");
+                patchNotesList.innerHTML = ""; // Clear existing patch notes
+
+                for (const note of patchNotes) {
+                    const noteItem = document.createElement("li");
+                    noteItem.innerHTML = `<strong>Version ${note.version} (${note.date})</strong><ul>${note.changes.map(change => `<li>${change}</li>`).join('')}</ul>`;
+
+                    // Generate description using GPT
+                    const description = await generatePatchNoteDescription(note.changes);
+                    const descriptionItem = document.createElement("p");
+                    descriptionItem.innerHTML = `<strong>Description:</strong> ${description}`;
+
+                    patchNotesList.appendChild(noteItem);
+                    patchNotesList.appendChild(descriptionItem);
+                }
+            }
+        };
+        document.head.appendChild(script);
     };
 </script>
 </body>
 </html>
-
