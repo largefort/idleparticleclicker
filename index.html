@@ -13,13 +13,13 @@
 </head>
 <body>
 <audio autoplay loop>
-    <source src="alexander-nakarada-space-ambience.mp3" type="audio/mpeg">
+    <source src="cyberchicks.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 <!-- Version and copyright credit -->
 <div class="version-info">
     <div>1.0.0</div>
-    <div>10008</div>
+    <div>100015</div>
 </div>
 
 <div id="particles-js"></div>
@@ -34,6 +34,7 @@
         <button id="click-upgrade" onclick="buyClickUpgrade(event)">Upgrade Click (Cost: 50)</button>
         <button onclick="openResearchTree()">Research Tree</button>
         <button onclick="openStoreModal()">Store</button> <!-- Store button -->
+        <button onclick="openPatchNotesModal()">Patch Notes</button> <!-- Patch Notes button -->
     </div>
 </div>
 
@@ -111,17 +112,29 @@
     </div>
 </div>
 
-<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
-<script>
-    // CrazyGames SDK initialization
-</script>
+<!-- Patch Notes Modal -->
+<div id="patch-notes-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closePatchNotesModal()">&times;</span>
+        <h2>Patch Notes</h2>
+        <div id="patch-notes">
+            <ul id="patch-notes-list">
+                <!-- Patch notes will be dynamically inserted here -->
+            </ul>
+        </div>
+    </div>
+</div>
 
+<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script src="particles.min.js"></script>
-<script src="particles.js"></script>
+<script src="js/particles.min.js"></script>
+<script src="js/particles.js"></script>
 <script src="js/particles-mobile.json"></script>
 <script src="js/index.js"></script>
+<script src="cordova.js"></script>
 <script src="script.js"></script>
+<script src="inapp.js"></script>
+<script src="plugins/cordova-plugin-purchase/www/store.js"></script>
 <script>
     // JavaScript functions for handling store modal
     function openStoreModal() {
@@ -138,6 +151,79 @@
     function updateParticlesCount(count) {
         document.getElementById('particles-count').innerText = count;
     }
+
+    // JavaScript function to open Patch Notes modal
+    function openPatchNotesModal() {
+        var modal = document.getElementById('patch-notes-modal');
+        modal.style.display = 'block';
+    }
+
+    // JavaScript function to close Patch Notes modal
+    function closePatchNotesModal() {
+        var modal = document.getElementById('patch-notes-modal');
+        modal.style.display = 'none';
+    }
+
+    // Include the OpenAI GPT API library, assuming it's loaded separately
+    // Make sure to replace 'YOUR_API_KEY' with your actual OpenAI API key
+    const openai = require('openai')('sk-proj-cM4Vm8ymdAwGuFJSOWa0T3BlbkFJsMiObwmWjV5zJwD9M8NR');
+
+    // Function to generate patch note descriptions using GPT
+    async function generatePatchNoteDescription(changes) {
+        try {
+            const prompt = `Patch notes:\n\n${changes.map(change => `- ${change}`).join('\n')}\n\nDescription:\n`;
+            const gptResponse = await openai.complete({
+                engine: 'text-davinci-003',
+                prompt: prompt,
+                max_tokens: 150
+            });
+            const description = gptResponse.data.choices[0].text.trim();
+            return description;
+        } catch (error) {
+            console.error("Error generating patch note description:", error);
+            return "An error occurred while generating the patch note description.";
+        }
+    }
+
+    // Define patch notes
+    const patchNotes = [
+        {
+            version: "1.0.1",
+            date: "2024-04-19",
+            changes: [
+                "Fixed a bug where auto-generator was not incrementing score properly.",
+                "Adjusted click upgrade pricing for better balance.",
+                "Improved performance for smoother gameplay experience."
+            ]
+        },
+        // Add more patch notes as needed
+    ];
+
+    // Function to update patch notes in index.html with descriptions
+    async function updatePatchNotes() {
+        const patchNotesList = document.getElementById("patch-notes-list");
+        patchNotesList.innerHTML = ""; // Clear existing patch notes
+
+        for (const note of patchNotes) {
+            const noteItem = document.createElement("li");
+            noteItem.innerHTML = `<strong>Version ${note.version} (${note.date})</strong><ul>${note.changes.map(change => `<li>${change}</li>`).join('')}</ul>`;
+
+            // Generate description using GPT
+            const description = await generatePatchNoteDescription(note.changes);
+            const descriptionItem = document.createElement("p");
+            descriptionItem.innerHTML = `<strong>Description:</strong> ${description}`;
+
+            patchNotesList.appendChild(noteItem);
+            patchNotesList.appendChild(descriptionItem);
+        }
+    }
+
+    // Automatically describe new changes in index.html
+    window.onload = function() {
+        // Update patch notes list
+        updatePatchNotes();
+    };
 </script>
 </body>
 </html>
+
