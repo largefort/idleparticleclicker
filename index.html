@@ -7,11 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <link rel="stylesheet" type="text/css" href="mobile-styles.css"> <!-- Mobile-specific styles -->
-
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
-
-    <!-- Square Payment Form Library -->
-    <script type="text/javascript" src="https://js.squareupsandbox.com/v2/paymentform"></script>
 </head>
 <body>
 <audio autoplay loop>
@@ -29,36 +24,10 @@
     <div class="info" id="score-display">Score: <span id="score">0</span></div>
     <div class="info" id="auto-score-display">Passive Points/Sec: <span id="auto-score">0</span></div>
     <div class="info" id="click-power-display">Score Per Click: <span id="click-power">1</span></div>
-    <div class="info" id="particles-counter">Particles: <span id="particles-count">0</span></div> <!-- Particles Counter -->
     <div class="shop">
         <button id="auto-generator" onclick="buyAutoGenerator(event)">Buy Auto-Generator (Cost: 100)</button>
         <button id="click-upgrade" onclick="buyClickUpgrade(event)">Upgrade Click (Cost: 50)</button>
         <button onclick="openResearchTree()">Research Tree</button>
-        <button onclick="openStoreModal()">Store</button> <!-- Store button -->
-    </div>
-</div>
-
-<!-- Store Modal -->
-<div id="store-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeStoreModal()">&times;</span>
-        <h2>Store</h2>
-        <p>Choose your purchase:</p>
-        <form id="payment-form">
-            <div class="form-row">
-                <label for="card-container">
-                    Credit or debit card
-                </label>
-                <div id="card-container"></div>
-                <button id="card-button" type="button">Submit Payment</button>
-                <div id="payment-status"></div>
-            </div>
-            <input type="hidden" id="purchase-amount" name="purchase-amount" value="">
-        </form>
-        <button class="modal-button" onclick="purchaseProduct('particles_bundle_1', 199)">Particles Bundle 1 (Price: $1.99)</button>
-        <button class="modal-button" onclick="purchaseProduct('particles_bundle_2', 299)">Particles Bundle 2 (Price: $2.99)</button>
-        <button class="modal-button" onclick="purchaseProduct('particles_bundle_3', 499)">Particles Bundle 3 (Price: $4.99)</button>
-        <button class="modal-button" onclick="purchaseProduct('particles_bundle_4', 999)">Particles Bundle 4 (Price: $9.99)</button>
     </div>
 </div>
 
@@ -134,22 +103,5 @@
 <script src="script.js"></script>
 <script src="js/particles-mobile.json"></script>
 <script src="js/index.js"></script>
-<script>
-    // JavaScript functions for handling store modal
-    function openStoreModal() {
-        var modal = document.getElementById('store-modal');
-        modal.style.display = 'block';
-    }
-
-    function closeStoreModal() {
-        var modal = document.getElementById('store-modal');
-        modal.style.display = 'none';
-    }
-
-    // JavaScript function to display particles count
-    function updateParticlesCount(count) {
-        document.getElementById('particles-count').innerText = count;
-    }
-    <script>
 </body>
 </html>
